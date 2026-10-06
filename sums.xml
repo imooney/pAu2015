@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job maxFilesPerProcess="20" fileListSyntax="xrootd" simulateSubmission="false">
+  <shell>singularity exec -e -B /direct -B /star -B /afs -B /gpfs -B /sdcc/lustre02 /cvmfs/star.sdcc.bnl.gov/containers/rhic_sl7.sif</shell>
+	<command>
+	  <!-- source /star/nfs4/AFS/star/group/.starver-->
+        starver pro
+	<!--echo PATH: $PATH
+	env | grep -i star
+	ls $STAR
+	which root4star
+	rehash
+	which root4star
+        echo star version: $STAR_VERSION
+	--> <!--$STAR_BIN/root4star might be necessary in the next line -->
+        root4star -l -q -b macros/readPicoDst.C\(\"${FILELIST}\",-1,\"${JOBID}.root\"\)
+        
+	</command>
+    <stdout URL="file:/gpfs/mnt/gpfs01/star/pwg/imooney/pAu2015/stdout/$JOBID.out" />
+    <stderr URL="file:/gpfs/mnt/gpfs01/star/pwg/imooney/pAu2015/stderr/$JOBID.err" />
+    <output fromScratch="${JOBID}.root" toURL="file:/gpfs/mnt/gpfs01/star/pwg/imooney/pAu2015/outroot/"/>
+<!--    <input URL="catalog:star.bnl.gov?production=P18ih,library=SL18h,trgsetupname=production_pAu200_2015,filetype=daq_reco_picoDst,sname2=st_physics||st_physics_adc||st_ssdmb,storage!=hpss" nFiles="4" />--><!--this was looking at ssdmb stream, but probably want st_physics for JP2--> <!--nFiles="all"-->
+<input URL="catalog:star.bnl.gov?production=P16id,library=SL20a,trgsetupname=production_pAu200_2015,filetype=daq_reco_picoDst,sname2=st_physics||st_physics_adc,storage!=hpss" nFiles="1000" />
+
+	<SandBox installer="ZIP">
+        <Package> 
+            <File>file:./macros/readPicoDst.C</File>
+	    <File>file:./StRoot</File>
+            <File>file:./.sl73_x8664_gcc485</File>
+	</Package>		
+	</SandBox>
+	
+	<Generator>
+            <Location>/gpfs/mnt/gpfs01/star/pwg/imooney/pAu2015/Files</Location>
+            <ScriptLocation>/gpfs/mnt/gpfs01/star/pwg/imooney/pAu2015/Scripts</ScriptLocation>
+            <ListLocation>/gpfs/mnt/gpfs01/star/pwg/imooney/pAu2015/Lists</ListLocation>
+	</Generator>
+
+</job>
