@@ -5,11 +5,15 @@
 // StPicoAnalyzer
 // -----------------------------------------------------------------------------
 
+#include <set>
+
 #include "StMaker.h"
 
 #include "StEmcUtil/geometry/StEmcGeom.h"
 
 #include "TString.h"
+#include "TProfile.h"
+
 /*
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -23,6 +27,7 @@
 class StPicoDstMaker;
 class StPicoDst;
 class StPicoEvent;
+class StPicoTrack;
 class StRefMultCorr;
 class TFile;
 class TH1F;
@@ -32,6 +37,9 @@ class StPicoAnalyzer : public StMaker {
  public:
   StPicoAnalyzer(const char* name, StPicoDstMaker* picoMaker, const char* outputFileName = "output.root");
   virtual ~StPicoAnalyzer();
+
+  void SetBadTowerList(const char* f)    { mBadTowerFile = f; }
+  void ApplyHadronicCorrection(StPicoDst* picoDst, StPicoEvent* picoEvent, std::vector<double>& towerE, double frac) const;
 
   virtual Int_t Init();
   virtual Int_t Make();
@@ -47,13 +55,20 @@ class StPicoAnalyzer : public StMaker {
   TString mOutputFileName;        //! e.g. "output.root" or "$JOBID.root"
   TFile* mOutputFile;             //! opened in Init(), written+closed in Finish()
 
+  std::string   mBadTowerFile;   // comma-separated hot + dead tower IDs (1-4800)
+  std::set<int> mBadTowers;
+
   StRefMultCorr  *refmultCorr; //currently only trying to use for bad run list access, assuming it's there
+
+  bool   LoadBadTowers();
+  bool   IsGoodTower(int id) const;
 
   std::map<TString, TH1*> mQAHists;
 
   TH1* BookTH1F(const char* name, const char* title, Int_t nBins, Double_t lo, Double_t hi);
   TH1* BookTH2F(const char* name, const char* title, Int_t nBinsX, Double_t xlo, Double_t xhi, Int_t nBinsY, Double_t ylo, Double_t yhi);
-  
+  TProfile* BookTProfile(const char* name, const char* title, Int_t nBinsX, Double_t xlo, Double_t xhi, Option_t* option = "");
+
   //EEC hists
   
   static const Int_t kNEECBins = 14;
@@ -88,6 +103,7 @@ class StPicoAnalyzer : public StMaker {
 */
   
   //analysis-specific functions
+  int isTrackGood (const StPicoTrack* trk, const StPicoEvent* picoEvent) const;
   void processJets(StPicoDst* picoDst, StPicoEvent* picoEvent);
   //  void fillEEC(const class fastjet::PseudoJet& jet);//couldn't have this as member of class because of compile error with fastjet on RCF, so just defined separately from class in the cxx.
   
