@@ -19,7 +19,7 @@
 class StChain;
 StChain* chain = 0;
 
-void readPicoDst(const Char_t* input = "picodst.list", Int_t nEvents = -1, const Char_t* outFile = "output.root")
+void readPicoDst(const Char_t* input = "picodst.list", Int_t nEvents = -1, const Char_t* outFile = "output.root", const char* badTowerList = "lists/bad_towers_pAu2015.list")
 {
   // ---- load STAR shared libraries -----------------------------------------
   gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
@@ -43,7 +43,8 @@ void readPicoDst(const Char_t* input = "picodst.list", Int_t nEvents = -1, const
 
   StPicoAnalyzer* analyzer =
     new StPicoAnalyzer("PicoAnalyzer", picoMaker, outFile);
-
+  analyzer->SetBadTowerList(badTowerList);
+  
   chain->Init();
 
   // ---- figure out how many events to run ------------------------------------
